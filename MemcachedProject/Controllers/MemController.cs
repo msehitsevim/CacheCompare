@@ -16,7 +16,7 @@ public class MemController : ControllerBase
     }
 
     [HttpGet("GetById")]
-    public async Task<string> GetById(int id)
+    public async Task<Errlog> GetById(int id)
     {
        return await _repository.GetErrorByIdAsync(id);
     }
@@ -36,22 +36,15 @@ public class MemController : ControllerBase
     [HttpDelete("Delete")]
     public async Task<string> Delete(int id)
     {
-        string existingData = await _repository.GetErrorByIdAsync(id);
-
-        if (existingData == "Değer Bulunamadı.")
-        {
-            return "Değer Bulunamadı.";
-        }
-
         string result = await _repository.DeleteErrorAsync(id);
 
         return result;
     }
 
     [HttpGet("SetCache")]
-    public async Task<string> SetCache()
+    public async Task<string> SetCache(int count)
     {
-        return await _repository.GetAllErrorAsync();
+        return await _repository.GetAllErrorAsync(count);
     }
 
 }

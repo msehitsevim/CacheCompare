@@ -31,7 +31,7 @@ public class RedisController : ControllerBase
     [HttpPost("Create")]
     public async Task<Errlog> Create(Errlog errlog)
     {
-        await _cache.SetAsync($"Error_{errlog.Guid}", ObjectToByteArray(errlog));
+        await _cache.SetAsync($"Error_{errlog.Id}", ObjectToByteArray(errlog));
         
         return errlog;
     }
@@ -39,7 +39,7 @@ public class RedisController : ControllerBase
     [HttpPut("Update")]
     public async Task<IActionResult> Update(Errlog errlog)
     {
-        await _cache.SetAsync($"Error_{errlog.Guid}", ObjectToByteArray(errlog));
+        await _cache.SetAsync($"Error_{errlog.Id}", ObjectToByteArray(errlog));
 
         return Accepted();
     }
@@ -74,13 +74,13 @@ public class RedisController : ControllerBase
 
 
     [HttpGet("SetCache")]
-    public async Task<string> SetCache()
+    public async Task<string> SetCache(int count)
     {
-        List<Errlog> sqlData = _context.Errlogs.ToList();
+        List<Errlog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
 
         foreach (var item in sqlData)
         {
-           await _cache.SetAsync($"Error_{item.Guid}", ObjectToByteArray(item));
+           await _cache.SetAsync($"Error_{item.Id}", ObjectToByteArray(item));
         }
 
         return Ok("test").ToString()!;

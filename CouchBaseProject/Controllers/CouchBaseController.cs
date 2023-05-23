@@ -37,7 +37,7 @@ namespace CouchBaseProject.Controllers
             IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
             ICouchbaseCollection collection = bucket.DefaultCollection();
 
-            IMutationResult result = await collection.InsertAsync(errlog.Guid.ToString(), errlog);
+            IMutationResult result = await collection.InsertAsync(errlog.Id.ToString(), errlog);
             if (result.MutationToken != null)
             {
                 return Ok();
@@ -52,7 +52,7 @@ namespace CouchBaseProject.Controllers
             IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
             ICouchbaseCollection collection = bucket.DefaultCollection();
 
-            IMutationResult result =  await collection.UpsertAsync(errlog.Guid.ToString(), errlog);
+            IMutationResult result =  await collection.UpsertAsync(errlog.Id.ToString(), errlog);
             if(result.MutationToken != null)
             {
                 return Ok();
@@ -74,21 +74,22 @@ namespace CouchBaseProject.Controllers
 
 
         [HttpGet("SetCache")]
-        public async Task<IActionResult> SetCache()
+        public async Task<IActionResult> SetCache(int count)
         {
 
-            List<Errlog> sqlData = _context.Errlogs.ToList();
+            List<Errlog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
             IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
             ICouchbaseCollection collection = bucket.DefaultCollection();
-
+            
             foreach (var item in sqlData)
             {
-                await collection.InsertAsync(item.Guid.ToString(), item);
+                await collection.InsertAsync(item.Id.ToString(), item);
             }
 
             return Ok();
         }
 
+        
 
 
 

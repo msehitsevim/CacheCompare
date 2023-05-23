@@ -24,30 +24,30 @@ public partial class CalismaVeriTabaniContext : DbContext
     {
         modelBuilder.Entity<Errlog>(entity =>
         {
-            entity.HasKey(e => e.Guid).HasName("PK___errlog__497F6CB44DE5121A");
+            entity.HasKey(e => e.Id).HasName("PK___errlog__497F6CB44DE5121A");
 
             entity.ToTable("_errlog");
 
-            entity.Property(e => e.Guid).HasColumnName("guid");
+            entity.Property(e => e.Id).HasColumnName("Id");
             entity.Property(e => e.ErrLine)
                 .HasDefaultValueSql("((1))")
-                .HasColumnName("err_line");
+                .HasColumnName("Err_line");
             entity.Property(e => e.ErrMsg)
                 .IsUnicode(false)
                 .HasDefaultValueSql("('')")
-                .HasColumnName("err_msg");
+                .HasColumnName("Err_msg");
             entity.Property(e => e.ErrNo)
                 .HasDefaultValueSql("((1))")
-                .HasColumnName("err_no");
+                .HasColumnName("Err_no");
             entity.Property(e => e.ErrProc)
                 .HasMaxLength(1000)
                 .IsUnicode(false)
                 .HasDefaultValueSql("('')")
-                .HasColumnName("err_proc");
+                .HasColumnName("Err_proc");
             entity.Property(e => e.Tarih)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
-                .HasColumnName("tarih");
+                .HasColumnName("Tarih");
         });
 
 

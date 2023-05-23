@@ -14,23 +14,23 @@ public class ErrorRepository : IErrorRepository
         _context = context;
     }
 
-    public async Task<string> GetErrorByIdAsync(int id)
+    public async Task<Errlog> GetErrorByIdAsync(int id)
     {
         var cacheKey = $"Error_{id}";
 
         var result = await _cache.GetAsync<Errlog>(cacheKey);
 
-        if (result.Success)
+        if (!result.Success)
         {
-            return result.Value.Tarih.ToString()!;
+            return new Errlog { ErrLine = 0, ErrMsg = "Aranılan Veri Bulunamadı."};
         }
 
-        return "Değer Bulunamadı.";
+        return result.Value;
     }
 
     public async Task<string> AddErrorAsync(Errlog err)
     { 
-        bool retval = await _cache.SetAsync($"Error_{err.Guid}", err, TimeSpan.FromMinutes(5));
+        bool retval = await _cache.SetAsync($"Error_{err.Id}", err, TimeSpan.FromMinutes(5));
         if (!retval)
         {
             return "Belleğe yazılamadı";
@@ -40,7 +40,7 @@ public class ErrorRepository : IErrorRepository
 
     public async Task<string> UpdateErrorAsync(Errlog errlog)
     {
-       bool retval = await _cache.ReplaceAsync($"error_{errlog.Guid}", errlog, TimeSpan.FromMinutes(5));
+       bool retval = await _cache.ReplaceAsync($"Error_{errlog.Id}", errlog, TimeSpan.FromMinutes(5));
         if (!retval)
         {
             return "Bellekteki veri güncellenemedi";
@@ -48,35 +48,32 @@ public class ErrorRepository : IErrorRepository
         return "İşlem başarılı";
     }
 
-    public async Task<string> DeleteErrorAsync(int guid)
+    public async Task<string> DeleteErrorAsync(int id)
     {
-        var result = await _cache.RemoveAsync($"error_{guid}");
-        if (!result)
-        {
-            return "Veri Silinemedi.";
-        }
+        await _cache.RemoveAsync($"Error_{id}");
 
-        var getCacheData = await _cache.GetAsync<Errlog>($"error_{guid}");
-        if (getCacheData != null)
+        var getCacheData = await _cache.GetAsync<Errlog>($"Error_{id}");
+
+        if (getCacheData.Success)
         {
-            return "Bellekte Veri Duruyor.";
+            return "Bellekte Veri Duruyor. Tekrar deneyin.";
         }
 
         return "İşlem başarılı.";
     }
 
-    public async Task<string> GetAllErrorAsync()
+    public async Task<string> GetAllErrorAsync(int count)
     {
-        List<Errlog> sqlData = _context.Errlogs.ToList();
+
+        List<Errlog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
         List<Errlog> resultList = new List<Errlog>();
 
         foreach (var item in sqlData)
         {
-            await _cache.SetAsync($"Error_{item.Guid}", item, TimeSpan.FromMinutes(5));
+            await _cache.SetAsync($"Error_{item.Id}", item, TimeSpan.FromMinutes(5));
 
         }
        return  "bitti";
     }
-
 
 }
