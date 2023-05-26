@@ -3,7 +3,7 @@ using Redis.OM;
 using RedisProject.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using Entities;
 
 namespace MemcachedProject.Controllers;
 
@@ -12,9 +12,9 @@ namespace MemcachedProject.Controllers;
 public class RedisController : ControllerBase
 {
     private readonly IDistributedCache _cache;
-    private readonly CalismaVeriTabaniContext _context;
+    private readonly DbContext _context;
 
-    public RedisController(CalismaVeriTabaniContext context, IDistributedCache cache)
+    public RedisController(DbContext context, IDistributedCache cache)
     {
         _context = context;
         _cache = cache;
@@ -29,7 +29,7 @@ public class RedisController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public async Task<Errlog> Create(Errlog errlog)
+    public async Task<ErrorLog> Create(ErrorLog errlog)
     {
         await _cache.SetAsync($"Error_{errlog.Id}", ObjectToByteArray(errlog));
         
@@ -37,7 +37,7 @@ public class RedisController : ControllerBase
     }
 
     [HttpPut("Update")]
-    public async Task<IActionResult> Update(Errlog errlog)
+    public async Task<IActionResult> Update(ErrorLog errlog)
     {
         await _cache.SetAsync($"Error_{errlog.Id}", ObjectToByteArray(errlog));
 
@@ -53,6 +53,7 @@ public class RedisController : ControllerBase
             return ms.ToArray();
         }
     }
+
     public static Object ByteArrayToObject(byte[] arrBytes)
     {
         using (var memStream = new MemoryStream())
@@ -72,11 +73,10 @@ public class RedisController : ControllerBase
         return NoContent();
     }
 
-
     [HttpGet("SetCache")]
     public async Task<string> SetCache(int count)
     {
-        List<Errlog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
+        List<ErrorLog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
 
         foreach (var item in sqlData)
         {
@@ -85,5 +85,4 @@ public class RedisController : ControllerBase
 
         return Ok("test").ToString()!;
     }
-
 }

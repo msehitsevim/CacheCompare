@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<CalismaVeriTabaniContext>();
+builder.Services.AddDbContext<DbContext>();
 
 
 builder.Services.AddLogging();

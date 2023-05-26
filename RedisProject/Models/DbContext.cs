@@ -1,19 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace RedisProject.Models;
 
-public partial class CalismaVeriTabaniContext : DbContext
+public partial class DbContext : Microsoft.EntityFrameworkCore.DbContext
 {
-    public CalismaVeriTabaniContext()
+    public DbContext()
     {
     }
 
-    public CalismaVeriTabaniContext(DbContextOptions<CalismaVeriTabaniContext> options)
+    public DbContext(DbContextOptions<DbContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Errlog> Errlogs { get; set; }
+    public virtual DbSet<ErrorLog> Errlogs { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,33 +23,29 @@ public partial class CalismaVeriTabaniContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Errlog>(entity =>
+        modelBuilder.Entity<ErrorLog>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK___errlog__497F6CB44DE5121A");
 
-            entity.ToTable("_errlog");
+            entity.ToTable("ErrorLog");
 
             entity.Property(e => e.Id).HasColumnName("Id");
-            entity.Property(e => e.ErrLine)
+            entity.Property(e => e.ErrorLine)
                 .HasDefaultValueSql("((1))")
-                .HasColumnName("Err_line");
-            entity.Property(e => e.ErrMsg)
+                .HasColumnName("ErrorLine");
+            entity.Property(e => e.ErrorMessage)
                 .IsUnicode(false)
                 .HasDefaultValueSql("('')")
-                .HasColumnName("Err_msg");
-            entity.Property(e => e.ErrNo)
+                .HasColumnName("ErrorMessage");
+            entity.Property(e => e.ErrorNo)
                 .HasDefaultValueSql("((1))")
-                .HasColumnName("Err_no");
-            entity.Property(e => e.ErrProc)
-                .HasMaxLength(1000)
-                .IsUnicode(false)
-                .HasDefaultValueSql("('')")
-                .HasColumnName("Err_proc");
-            entity.Property(e => e.Tarih)
+                .HasColumnName("ErrorNo");
+            entity.Property(e => e.ErrorDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("Tarih");
         });
+
 
 
 

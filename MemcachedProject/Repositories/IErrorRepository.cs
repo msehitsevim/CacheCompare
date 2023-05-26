@@ -1,12 +1,12 @@
-﻿using MemcachedProject.Models;
+﻿using Entities;
 
 namespace MemcachedProject.Repositories;
 
 public interface IErrorRepository
 {
-    Task<Errlog> GetErrorByIdAsync(int id);
-    Task<string> AddErrorAsync(Errlog product);
-    Task<string> UpdateErrorAsync(Errlog errlog);
+    Task<ErrorLog> GetErrorByIdAsync(int id);
+    Task<string> AddErrorAsync(ErrorLog product);
+    Task<string> UpdateErrorAsync(ErrorLog errlog);
     Task<string> DeleteErrorAsync(int guid);
     Task<string> GetAllErrorAsync(int count);
 

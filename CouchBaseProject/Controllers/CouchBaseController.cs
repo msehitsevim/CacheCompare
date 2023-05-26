@@ -2,97 +2,90 @@
 using Couchbase.Extensions.DependencyInjection;
 using Couchbase.KeyValue;
 using CouchBaseProject.Models;
+using Entities;
 using Microsoft.AspNetCore.Mvc;
 
+namespace CouchBaseProject.Controllers;
 
-namespace CouchBaseProject.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class CouchBaseController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CouchBaseController : ControllerBase
+    private readonly IBucketProvider _bucketProvider;
+    private readonly DbContext _context;
+
+    public CouchBaseController(IBucketProvider bucketProvider, DbContext context)
     {
-        private readonly IBucketProvider _bucketProvider;
-        private readonly CalismaVeriTabaniContext _context;
+        _bucketProvider = bucketProvider;
+        _context = context;
+    }
 
-        public CouchBaseController(IBucketProvider bucketProvider, CalismaVeriTabaniContext context)
+    [HttpGet("Get")]
+    public async Task<ErrorLog> Get(string id)
+    {
+        IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
+        ICouchbaseCollection collection = bucket.DefaultCollection();
+
+        IGetResult temp = await collection.GetAsync(id);
+
+        return temp.ContentAs<ErrorLog>()!;
+    }
+
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create(ErrorLog errlog)
+    {
+        IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
+        ICouchbaseCollection collection = bucket.DefaultCollection();
+
+        IMutationResult result = await collection.InsertAsync(errlog.Id.ToString(), errlog);
+        if (result.MutationToken != null)
         {
-            _bucketProvider = bucketProvider;
-            _context = context;
+            return Ok();
         }
+        return BadRequest();
+    }
 
-        [HttpGet("Get")]
-        public async Task<Errlog> Get(string id)
+    [HttpPut("Update")]
+    public async Task<IActionResult> Update(ErrorLog errlog)
+    {
+
+        IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
+        ICouchbaseCollection collection = bucket.DefaultCollection();
+
+        IMutationResult result = await collection.UpsertAsync(errlog.Id.ToString(), errlog);
+        if (result.MutationToken != null)
         {
-            IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
-            ICouchbaseCollection collection = bucket.DefaultCollection();
-
-            IGetResult temp = await collection.GetAsync(id);
-
-            return temp.ContentAs<Errlog>()!;
-        }
-
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create(Errlog errlog)
-        {
-            IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
-            ICouchbaseCollection collection = bucket.DefaultCollection();
-
-            IMutationResult result = await collection.InsertAsync(errlog.Id.ToString(), errlog);
-            if (result.MutationToken != null)
-            {
-                return Ok();
-            }
-            return BadRequest();
-        }
-
-        [HttpPut("Update")]
-        public async Task<IActionResult> Update(Errlog errlog)
-        {
-
-            IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
-            ICouchbaseCollection collection = bucket.DefaultCollection();
-
-            IMutationResult result =  await collection.UpsertAsync(errlog.Id.ToString(), errlog);
-            if(result.MutationToken != null)
-            {
-                return Ok();
-            }
-
-            return BadRequest();
-        }
-
-        [HttpDelete("Delete")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
-            ICouchbaseCollection collection = bucket.DefaultCollection();
-
-            await collection.RemoveAsync(id);
-
             return Ok();
         }
 
+        return BadRequest();
+    }
 
-        [HttpGet("SetCache")]
-        public async Task<IActionResult> SetCache(int count)
+    [HttpDelete("Delete")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
+        ICouchbaseCollection collection = bucket.DefaultCollection();
+
+        await collection.RemoveAsync(id);
+
+        return Ok();
+    }
+
+    [HttpGet("SetCache")]
+    public async Task<IActionResult> SetCache(int count)
+    {
+
+        List<ErrorLog> sqlData = _context.Errlogs.ToList().GetRange(0, count);
+        IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
+        ICouchbaseCollection collection = bucket.DefaultCollection();
+
+        foreach (var item in sqlData)
         {
-
-            List<Errlog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
-            IBucket bucket = await _bucketProvider.GetBucketAsync("Errors");
-            ICouchbaseCollection collection = bucket.DefaultCollection();
-            
-            foreach (var item in sqlData)
-            {
-                await collection.InsertAsync(item.Id.ToString(), item);
-            }
-
-            return Ok();
+            await collection.InsertAsync(item.Id.ToString(), item);
         }
 
-        
-
-
-
+        return Ok();
     }
 
 }

@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<CalismaVeriTabaniContext>();
+builder.Services.AddDbContext<DbContext>();
 
 builder.Services.AddCouchbase(builder.Configuration.GetSection("Couchbase"));
 var app = builder.Build();

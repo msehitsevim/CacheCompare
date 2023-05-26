@@ -7,7 +7,7 @@ ConfigurationManager configuration = builder.Configuration;
 
 builder.Services.AddStackExchangeRedisCache(options => { options.Configuration = configuration["RedisCacheUrl"]; });
 
-builder.Services.AddDbContext<CalismaVeriTabaniContext>();
+builder.Services.AddDbContext<DbContext>();
 
 builder.Services.AddControllers();
 

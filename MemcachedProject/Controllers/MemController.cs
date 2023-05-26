@@ -1,4 +1,4 @@
-﻿using MemcachedProject.Models;
+﻿using Entities;
 using MemcachedProject.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,19 +16,19 @@ public class MemController : ControllerBase
     }
 
     [HttpGet("GetById")]
-    public async Task<Errlog> GetById(int id)
+    public async Task<ErrorLog> GetById(int id)
     {
        return await _repository.GetErrorByIdAsync(id);
     }
    
     [HttpPost("Create")]
-    public async Task<string> Create(Errlog errlog)
+    public async Task<string> Create(ErrorLog errlog)
     {
        return await _repository.AddErrorAsync(errlog);
     }
 
     [HttpPut("Update")]
-    public async Task<string> Update(Errlog errlog)
+    public async Task<string> Update(ErrorLog errlog)
     {
        return await _repository.UpdateErrorAsync(errlog);
     }

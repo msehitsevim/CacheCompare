@@ -1,4 +1,5 @@
-﻿using Enyim.Caching;
+﻿using Entities;
+using Enyim.Caching;
 using MemcachedProject.Models;
 
 namespace MemcachedProject.Repositories;
@@ -6,29 +7,29 @@ namespace MemcachedProject.Repositories;
 public class ErrorRepository : IErrorRepository
 {
     private readonly IMemcachedClient _cache;
-    private readonly CalismaVeriTabaniContext _context;
+    private readonly DbContext _context;
 
-    public ErrorRepository(IMemcachedClient cache, CalismaVeriTabaniContext context)
+    public ErrorRepository(IMemcachedClient cache, DbContext context)
     {
         _cache = cache;
         _context = context;
     }
 
-    public async Task<Errlog> GetErrorByIdAsync(int id)
+    public async Task<ErrorLog> GetErrorByIdAsync(int id)
     {
         var cacheKey = $"Error_{id}";
 
-        var result = await _cache.GetAsync<Errlog>(cacheKey);
+        var result = await _cache.GetAsync<ErrorLog>(cacheKey);
 
         if (!result.Success)
         {
-            return new Errlog { ErrLine = 0, ErrMsg = "Aranılan Veri Bulunamadı."};
+            return new ErrorLog { ErrorLine = 0, ErrorMessage = "Aranılan Veri Bulunamadı."};
         }
 
         return result.Value;
     }
 
-    public async Task<string> AddErrorAsync(Errlog err)
+    public async Task<string> AddErrorAsync(ErrorLog err)
     { 
         bool retval = await _cache.SetAsync($"Error_{err.Id}", err, TimeSpan.FromMinutes(5));
         if (!retval)
@@ -38,7 +39,7 @@ public class ErrorRepository : IErrorRepository
         return "İşlem başarılı";
     }
 
-    public async Task<string> UpdateErrorAsync(Errlog errlog)
+    public async Task<string> UpdateErrorAsync(ErrorLog errlog)
     {
        bool retval = await _cache.ReplaceAsync($"Error_{errlog.Id}", errlog, TimeSpan.FromMinutes(5));
         if (!retval)
@@ -52,7 +53,7 @@ public class ErrorRepository : IErrorRepository
     {
         await _cache.RemoveAsync($"Error_{id}");
 
-        var getCacheData = await _cache.GetAsync<Errlog>($"Error_{id}");
+        var getCacheData = await _cache.GetAsync<ErrorLog>($"Error_{id}");
 
         if (getCacheData.Success)
         {
@@ -65,8 +66,8 @@ public class ErrorRepository : IErrorRepository
     public async Task<string> GetAllErrorAsync(int count)
     {
 
-        List<Errlog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
-        List<Errlog> resultList = new List<Errlog>();
+        List<ErrorLog> sqlData = _context.Errlogs.ToList().GetRange(0,count);
+        List<ErrorLog> resultList = new List<ErrorLog>();
 
         foreach (var item in sqlData)
         {
